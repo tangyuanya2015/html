@@ -1,0 +1,295 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英文单词游戏</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#8B5CF6',
+                        secondary: '#EC4899',
+                        accent: '#10B981',
+                        background: '#F0F9FF'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap');
+        body { font-family: 'Nunito', sans-serif; }
+        .theme-1 { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .theme-2 { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .theme-3 { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .theme-4 { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .theme-5 { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .option-btn { transition: all 0.3s ease; transform: translateY(0); }
+        .option-btn:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .correct { background: linear-gradient(135deg, #00b09b, #96c93d) !important; }
+        .incorrect { background: linear-gradient(135deg, #ff416c, #ff4b2b) !important; }
+        .pulse { animation: pulse 1s infinite; }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-background flex items-center justify-center p-4 theme-1">
+    <div class="w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden">
+        <!-- 游戏头部 -->
+        <div class="bg-gradient-to-r from-primary to-secondary p-6 text-white">
+            <div class="flex justify-between items-center">
+                <h1 class="text-3xl font-bold flex items-center">
+                    <i class="fas fa-book mr-3"></i>
+                    英文单词游戏
+                </h1>
+                <div class="flex items-center space-x-4">
+                    <div class="bg-white bg-opacity-20 px-4 py-2 rounded-full flex items-center">
+                        <i class="fas fa-star text-yellow-300 mr-2"></i>
+                        <span id="score" class="font-bold">0</span>/<span id="maxScore">100</span>
+                    </div>
+                    <div class="bg-white bg-opacity-20 px-4 py-2 rounded-full flex items-center">
+                        <i class="fas fa-tasks mr-2"></i>
+                        <span id="progress">0</span>/20
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 游戏主体 -->
+        <div class="p-8">
+            <!-- 游戏信息区域 -->
+            <div class="text-center mb-8">
+                <div class="inline-block bg-blue-50 px-6 py-3 rounded-full mb-4">
+                    <span class="text-blue-600 font-semibold">选择正确的中文翻译</span>
+                </div>
+                <div class="text-gray-600">
+                    <p>答对一题得5分，满分100分。加油！</p>
+                </div>
+            </div>
+
+            <!-- 英文单词显示 -->
+            <div class="text-center mb-10">
+                <div id="wordDisplay" class="text-6xl font-bold text-gray-800 mb-6 pulse">
+                    HELLO
+                </div>
+            </div>
+
+            <!-- 选项区域 -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <button id="option1" class="option-btn bg-gradient-to-r from-purple-400 to-purple-600 text-white py-6 px-4 rounded-2xl text-xl font-bold shadow-lg hover:shadow-xl">
+                    选项1
+                </button>
+                <button id="option2" class="option-btn bg-gradient-to-r from-pink-400 to-pink-600 text-white py-6 px-4 rounded-2xl text-xl font-bold shadow-lg hover:shadow-xl">
+                    选项2
+                </button>
+                <button id="option3" class="option-btn bg-gradient-to-r from-blue-400 to-blue-600 text-white py-6 px-4 rounded-2xl text-xl font-bold shadow-lg hover:shadow-xl">
+                    选项3
+                </button>
+            </div>
+
+            <!-- 控制按钮 -->
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <button id="changeThemeBtn" class="bg-gradient-to-r from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 text-white py-3 px-6 rounded-full font-bold shadow-lg transition-all flex items-center justify-center">
+                    <i class="fas fa-palette mr-2"></i>
+                    更换主题
+                </button>
+                <button id="resetBtn" class="bg-gradient-to-r from-red-400 to-red-600 hover:from-red-500 hover:to-red-700 text-white py-3 px-6 rounded-full font-bold shadow-lg transition-all flex items-center justify-center">
+                    <i class="fas fa-redo mr-2"></i>
+                    重新开始
+                </button>
+            </div>
+        </div>
+
+        <!-- 游戏规则说明 -->
+        <div class="bg-gray-50 p-6 border-t">
+            <div class="flex items-start">
+                <i class="fas fa-info-circle text-blue-500 text-xl mt-1 mr-3"></i>
+                <div>
+                    <h3 class="font-bold text-gray-800 mb-2">游戏规则</h3>
+                    <ul class="text-gray-600 text-sm space-y-1">
+                        <li>• 屏幕上方显示英文单词，下方有三个中文选项</li>
+                        <li>• 选择正确的中文翻译可获得5分</li>
+                        <li>• 满分为100分，共20道题目</li>
+                        <li>• 可以随时更换主题颜色</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 游戏数据
+        const gameData = [
+            { word: "HELLO", options: ["你好", "再见", "谢谢"], correct: 0 },
+            { word: "WORLD", options: ["世界", "地球", "宇宙"], correct: 0 },
+            { word: "WATER", options: ["水", "牛奶", "果汁"], correct: 0 },
+            { word: "FIRE", options: ["火", "光", "热"], correct: 0 },
+            { word: "EARTH", options: ["地球", "土地", "环境"], correct: 0 },
+            { word: "ANIMAL", options: ["动物", "植物", "人类"], correct: 0 },
+            { word: "HOUSE", options: ["房子", "街道", "城市"], correct: 0 },
+            { word: "SCHOOL", options: ["学校", "图书馆", "医院"], correct: 0 },
+            { word: "FAMILY", options: ["家庭", "朋友", "邻居"], correct: 0 },
+            { word: "FOOD", options: ["食物", "饮料", "糖果"], correct: 0 },
+            { word: "MUSIC", options: ["音乐", "舞蹈", "绘画"], correct: 0 },
+            { word: "BOOK", options: ["书", "报纸", "杂志"], correct: 0 },
+            { word: "TREE", options: ["树", "花朵", "草地"], correct: 0 },
+            { word: "SUN", options: ["太阳", "月亮", "星星"], correct: 0 },
+            { word: "MOON", options: ["月亮", "太阳", "云朵"], correct: 0 },
+            { word: "STAR", options: ["星星", "太阳", "月亮"], correct: 0 },
+            { word: "FLOWER", options: ["花朵", "树木", "草地"], correct: 0 },
+            { word: "BIRD", options: ["鸟", "鱼", "动物"], correct: 0 },
+            { word: "FISH", options: ["鱼", "鸟", "动物"], correct: 0 },
+            { word: "CAT", options: ["猫", "狗", "兔子"], correct: 0 }
+        ];
+
+        // 游戏状态
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let themes = ['theme-1', 'theme-2', 'theme-3', 'theme-4', 'theme-5'];
+        let currentTheme = 0;
+
+        // DOM元素
+        const wordDisplay = document.getElementById('wordDisplay');
+        const option1 = document.getElementById('option1');
+        const option2 = document.getElementById('option2');
+        const option3 = document.getElementById('option3');
+        const scoreDisplay = document.getElementById('score');
+        const progressDisplay = document.getElementById('progress');
+        const changeThemeBtn = document.getElementById('changeThemeBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        // 初始化游戏
+        function initGame() {
+            currentQuestion = 0;
+            score = 0;
+            answered = false;
+            updateScore();
+            updateProgress();
+            loadQuestion();
+        }
+
+        // 加载问题
+        function loadQuestion() {
+            if (currentQuestion >= gameData.length) {
+                endGame();
+                return;
+            }
+
+            const question = gameData[currentQuestion];
+            wordDisplay.textContent = question.word;
+            
+            // 重置按钮样式
+            option1.className = "option-btn bg-gradient-to-r from-purple-400 to-purple-600 text-white py-6 px-4 rounded-2xl text-xl font-bold shadow-lg hover:shadow-xl";
+            option2.className = "option-btn bg-gradient-to-r from-pink-400 to-pink-600 text-white py-6 px-4 rounded-2xl text-xl font-bold shadow-lg hover:shadow-xl";
+            option3.className = "option-btn bg-gradient-to-r from-blue-400 to-blue-600 text-white py-6 px-4 rounded-2xl text-xl font-bold shadow-lg hover:shadow-xl";
+            
+            option1.textContent = question.options[0];
+            option2.textContent = question.options[1];
+            option3.textContent = question.options[2];
+            
+            answered = false;
+        }
+
+        // 检查答案
+        function checkAnswer(selectedOption) {
+            if (answered) return;
+            
+            answered = true;
+            const question = gameData[currentQuestion];
+            const correctOption = question.correct;
+            
+            // 显示正确答案
+            if (selectedOption === correctOption) {
+                score += 5;
+                // 标记正确选项
+                if (selectedOption === 0) {
+                    option1.classList.add('correct');
+                } else if (selectedOption === 1) {
+                    option2.classList.add('correct');
+                } else {
+                    option3.classList.add('correct');
+                }
+            } else {
+                // 标记错误选项
+                if (selectedOption === 0) {
+                    option1.classList.add('incorrect');
+                } else if (selectedOption === 1) {
+                    option2.classList.add('incorrect');
+                } else {
+                    option3.classList.add('incorrect');
+                }
+                // 标记正确选项
+                if (correctOption === 0) {
+                    option1.classList.add('correct');
+                } else if (correctOption === 1) {
+                    option2.classList.add('correct');
+                } else {
+                    option3.classList.add('correct');
+                }
+            }
+            
+            updateScore();
+            
+            // 延迟加载下一题
+            setTimeout(() => {
+                loadNextQuestion();
+            }, 1000);
+        }
+
+        // 加载下一题
+        function loadNextQuestion() {
+            currentQuestion++;
+            updateProgress();
+            loadQuestion();
+        }
+
+        // 更新得分
+        function updateScore() {
+            scoreDisplay.textContent = score;
+        }
+
+        // 更新进度
+        function updateProgress() {
+            progressDisplay.textContent = currentQuestion + 1;
+        }
+
+        // 结束游戏
+        function endGame() {
+            wordDisplay.textContent = "游戏结束!";
+            option1.textContent = "你的得分:";
+            option2.textContent = `${score}分`;
+            option3.textContent = "点击重新开始";
+            
+            // 移除点击事件
+            option1.onclick = null;
+            option2.onclick = null;
+            option3.onclick = initGame;
+        }
+
+        // 更换主题
+        function changeTheme() {
+            currentTheme = (currentTheme + 1) % themes.length;
+            document.body.className = `min-h-screen flex items-center justify-center p-4 ${themes[currentTheme]}`;
+        }
+
+        // 事件监听
+        option1.addEventListener('click', () => checkAnswer(0));
+        option2.addEventListener('click', () => checkAnswer(1));
+        option3.addEventListener('click', () => checkAnswer(2));
+        changeThemeBtn.addEventListener('click', changeTheme);
+        resetBtn.addEventListener('click', initGame);
+
+        // 初始化游戏
+        window.onload = initGame;
+    </script>
+</body>
+</html>
